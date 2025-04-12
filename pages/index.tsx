@@ -1,4 +1,3 @@
-// /pages/index.tsx
 import { useState } from "react";
 
 export default function Home() {
@@ -8,14 +7,24 @@ export default function Home() {
 
   const handleAnalyze = async () => {
     setLoading(true);
-    const response = await fetch("/api/analyze", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sentence: input })
-    });
-    const data = await response.json();
-    setResult(data);
-    setLoading(false);
+    try {
+      const response = await fetch("/api/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sentence: input })
+      });
+
+      if (!response.ok) {
+        throw new Error("서버 응답 오류");
+      }
+
+      const data = await response.json();
+      setResult(data);
+    } catch (error) {
+      console.error("분석 실패:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -38,24 +47,26 @@ export default function Home() {
         {loading ? "분석 중..." : "분석하기"}
       </button>
 
-      {result && (
-        <div className="mt-6 space-y-4 border-t pt-4">
-          <div>
-            <h2 className="text-xl font-semibold">1. 원문</h2>
-            <p>{result.phrasedText}</p>
-          </div>
-          <div>
-            <h2 className="text-xl font-semibold">2. 해석</h2>
-            <p>{result.translation}</p>
-          </div>
-          <div>
-            <h2 className="text-xl font-semibold">3. 구문별 해석</h2>
-            <ul className="list-disc list-inside space-y-1">
-              {result.phrases.map((phrase: any, idx: number) => (
-                <li key={idx}>{phrase}</li>
-              ))}
-            </ul>
-          </div>
+      {result?.phrases && Array.isArray(result.phrases) && (
+        <div className="mt-6 space-y-2 border-t pt-4">
+          <h2 className="text-xl font-semibold">1. 원문</h2>
+          <p>{result.original}</p>
+
+          <h2 className="text-xl font-semibold">2. 해석</h2>
+          <p>{result.translation}</p>
+
+          <h2 className="text-xl font-semibold">3. 구문별 해석</h2>
+          <ul className="list-disc list-inside space-y-1">
+            {result.phrases.map((phrase: any, idx: number) => (
+              <li key={idx}>
+                {typeof phrase.text === "string" ? phrase.text : JSON.stringify(phrase.text)} (
+                {typeof phrase.meaning === "string"
+                  ? phrase.meaning
+                  : JSON.stringify(phrase.meaning)}
+                )
+              </li>
+            ))}
+          </ul>
         </div>
       )}
     </div>
