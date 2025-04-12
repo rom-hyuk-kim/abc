@@ -13,8 +13,8 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
   // 임시 분석 결과 (더미 데이터)
   const result = {
-    original: sentence,
-    translation: "이것은 예시 번역입니다.",
+    original: "The Net differs / from most of the mass media / it replaces / in an obvious and very important way",
+    translation: "인터넷은 그것이 대체하는 대부분의 대중 매체와 분명하고 매우 중요한 방식에서 다르다",
     phrases: [
       { text: "The Net differs", meaning: "인터넷은 다르다" },
       { text: "from most of the mass media", meaning: "대부분의 대중 매체와" },
