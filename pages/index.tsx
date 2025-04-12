@@ -5,45 +5,33 @@ export default function Home() {
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
-const handleAnalyze = async () => {
-  console.log("🔍 분석 요청 시작");
-  setLoading(true);
+  const handleAnalyze = async () => {
+    console.log("분석 시작");
+    setLoading(true);
+    try {
+      const response = await fetch("/api/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sentence: input })
+      });
 
-  try {
-    const response = await fetch("/api/analyze", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sentence: input })
-    });
+      if (!response.ok) {
+        throw new Error("서버 오류");
+      }
 
-    console.log("📨 응답 상태:", response.status);
-
-    const data = await response.json();
-    console.log("📦 응답 데이터:", data);
-
-    setResult(data);
-  } catch (error) {
-    console.error("❌ 오류 발생:", error);
-  } finally {
-    setLoading(false);
-  }
-};
-
-    const data = await response.json();
-console.log("✅ API 응답 데이터", data);
-setResult(data);
-
-    // ✅ 응답 확인 로그
-    console.log("✅ API 응답 결과:", data);
-
-    setResult(data);
-    setLoading(false);
+      const data = await response.json();
+      setResult(data);
+    } catch (err) {
+      console.error("에러 발생:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="max-w-2xl mx-auto p-6 space-y-4">
       <div className="flex items-center justify-center py-4">
-        <img src="/로고.png" alt="영어본부 로고" className="h-16" />
+        <img src="/logo.png" alt="영어본부 로고" className="h-16" />
       </div>
       <h1 className="text-3xl font-bold text-center">영어본부 구문해석기</h1>
       <textarea
@@ -60,7 +48,7 @@ setResult(data);
         {loading ? "분석 중..." : "분석하기"}
       </button>
 
-      {result?.phrases && Array.isArray(result.phrases) && (
+      {result && result.phrases && (
         <div className="mt-6 space-y-2 border-t pt-4">
           <h2 className="text-xl font-semibold">1. 원문</h2>
           <p>{result.original}</p>
