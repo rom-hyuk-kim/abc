@@ -33,19 +33,22 @@ export default function Home() {
         {loading ? "분석 중..." : "분석하기"}
       </button>
 
-{result?.phrases && Array.isArray(result.phrases) && (
-  <div className="mt-6 space-y-2 border-t pt-4">
-    <h2 className="text-xl font-semibold">1. 원문</h2>
-    <p>{result.original}</p>
-    <h2 className="text-xl font-semibold">2. 전체 해석</h2>
-    <p>{result.translation}</p>
-    <h2 className="text-xl font-semibold">3. 구문별 해석</h2>
-    <ul className="list-disc list-inside space-y-1">
-      {result.phrases.map((phrase: any, idx: number) => (
-        <li key={idx}>
-          {phrase.text} ({phrase.meaning})
-        </li>
-      ))}
-    </ul>
-  </div>
-)}
+      {result?.phrases && Array.isArray(result.phrases) && (
+        <div className="mt-6 space-y-2 border-t pt-4">
+          <h2 className="text-xl font-semibold">1. 원문</h2>
+          <p>{result.original}</p>
+          <h2 className="text-xl font-semibold">2. 전체 해석</h2>
+          <p>{result.translation}</p>
+          <h2 className="text-xl font-semibold">3. 구문별 해석</h2>
+          <ul className="list-disc list-inside space-y-1">
+            {result.phrases.map((phrase: any, idx: number) => (
+              <li key={idx}>
+                {phrase.text} ({phrase.meaning})
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
