@@ -12,7 +12,12 @@ export default function Home() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ sentence: input })
     });
+
     const data = await response.json();
+
+    // ✅ 응답 확인 로그
+    console.log("✅ API 응답 결과:", data);
+
     setResult(data);
     setLoading(false);
   };
