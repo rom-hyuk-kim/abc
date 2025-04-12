@@ -7,11 +7,12 @@ export default function Home() {
 
   const handleAnalyze = async () => {
     setLoading(true);
-    const response = await fetch("/api/analyze", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sentence: input })
-    });
+    const response = await fetch("https://abc-sigma-sand.vercel.app/api/analyze", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ sentence: input })
+});
+
 
     const data = await response.json();
 
