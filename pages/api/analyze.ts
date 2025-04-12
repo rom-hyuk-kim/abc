@@ -1,6 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import OpenAI from "openai";
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Only POST requests allowed" });
   }
@@ -11,29 +14,38 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     return res.status(400).json({ error: "Invalid sentence" });
   }
 
-  const phrases = sentence
+  const splitPhrases = sentence
     .split("/")
-    .map((part: string) => part.trim())
+    .map((phrase) => phrase.trim())
     .filter(Boolean);
 
-  const phraseDict: Record<string, string> = {
-    "The Net differs": "인터넷은 다르다",
-    "from most of the mass media": "대부분의 대중 매체와",
-    "it replaces": "그것이 대체하는",
-    "in an obvious and very important way": "분명하고 매우 중요한 방식으로"
-  };
+  const phraseAnalysis = await Promise.all(
+    splitPhrases.map(async (phrase) => {
+      const completion = await openai.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: [
+          {
+            role: "system",
+            content: "당신은 영어 문장을 한국어로 자연스럽게 번역해주는 번역 도우미입니다. 구문을 자연스럽고 간결하게 번역해주세요."
+          },
+          {
+            role: "user",
+            content: `"${phrase}" 이 구문을 자연스럽게 한국어로 번역해줘`
+          }
+        ]
+      });
 
-  // 모든 구문이 phraseDict 안에 있는 경우만 전체 문장 해석 반환, 아니면 자동 해석 문구 반환
-  const translation = phrases.every((phrase) => phraseDict[phrase])
-    ? phrases.map((phrase) => phraseDict[phrase]).join(" ")
-    : "이 문장은 자동으로 해석되었습니다.";
+      const meaning = completion.choices[0]?.message.content?.trim() || "(번역 실패)";
+      return { text: phrase, meaning };
+    })
+  );
+
+  const translation = phraseAnalysis.map((p) => p.meaning).join(" ");
 
   return res.status(200).json({
-    original: phrases.join(" / "),
+    original: sentence,
+    sliced: splitPhrases.join(" / "),
     translation,
-    phrases: phrases.map((text) => ({
-      text,
-      meaning: phraseDict[text] || `\"${text}\" 구문에 대한 해석입니다.`
-    }))
+    phrases: phraseAnalysis
   });
 }
