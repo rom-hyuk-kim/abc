@@ -5,13 +5,29 @@ export default function Home() {
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
-  const handleAnalyze = async () => {
-    setLoading(true);
-    const response = await fetch("https://abc-sigma-sand.vercel.app/api/analyze", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ sentence: input })
-});
+const handleAnalyze = async () => {
+  console.log("🔍 분석 요청 시작");
+  setLoading(true);
+
+  try {
+    const response = await fetch("/api/analyze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sentence: input })
+    });
+
+    console.log("📨 응답 상태:", response.status);
+
+    const data = await response.json();
+    console.log("📦 응답 데이터:", data);
+
+    setResult(data);
+  } catch (error) {
+    console.error("❌ 오류 발생:", error);
+  } finally {
+    setLoading(false);
+  }
+};
 
     const data = await response.json();
 console.log("✅ API 응답 데이터", data);
