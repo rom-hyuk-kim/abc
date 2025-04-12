@@ -13,8 +13,9 @@ export default function Home() {
   body: JSON.stringify({ sentence: input })
 });
 
-
     const data = await response.json();
+console.log("✅ API 응답 데이터", data);
+setResult(data);
 
     // ✅ 응답 확인 로그
     console.log("✅ API 응답 결과:", data);
