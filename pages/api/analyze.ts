@@ -11,7 +11,6 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     return res.status(400).json({ error: "Invalid sentence" });
   }
 
-  // 구체적인 문장에 대한 전체 해석과 구문별 해석 제공
   const phrases = sentence
     .split("/")
     .map((part: string) => part.trim())
@@ -24,18 +23,17 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     "in an obvious and very important way": "분명하고 매우 중요한 방식으로"
   };
 
-  const translation =
-    sentence ===
-    "The Net differs / from most of the mass media / it replaces / in an obvious and very important way"
-      ? "인터넷은 그것이 대체하는 대부분의 대중 매체와 분명하고 매우 중요한 방식에서 다르다"
-      : "이 문장은 자동으로 해석되었습니다.";
+  // 모든 구문이 phraseDict 안에 있는 경우만 전체 문장 해석 반환, 아니면 자동 해석 문구 반환
+  const translation = phrases.every((phrase) => phraseDict[phrase])
+    ? phrases.map((phrase) => phraseDict[phrase]).join(" ")
+    : "이 문장은 자동으로 해석되었습니다.";
 
   return res.status(200).json({
     original: phrases.join(" / "),
     translation,
     phrases: phrases.map((text) => ({
       text,
-      meaning: phraseDict[text] || `"${text}" 구문에 대한 해석입니다.`
+      meaning: phraseDict[text] || `\"${text}\" 구문에 대한 해석입니다.`
     }))
   });
 }
