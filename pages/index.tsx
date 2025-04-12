@@ -29,7 +29,11 @@ export default function Home() {
         placeholder="영어 문장을 입력하세요."
         className="w-full border rounded p-2 min-h-[120px]"
       />
-      <button onClick={handleAnalyze} disabled={loading} className="bg-black text-white px-4 py-2 rounded">
+      <button
+        onClick={handleAnalyze}
+        disabled={loading}
+        className="bg-black text-white px-4 py-2 rounded"
+      >
         {loading ? "분석 중..." : "분석하기"}
       </button>
 
