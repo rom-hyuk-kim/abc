@@ -1,44 +1,33 @@
-import { NextApiRequest, NextApiResponse } from 'next'
-import { OpenAI } from 'openai'
+import type { NextApiRequest, NextApiResponse } from 'next';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
-})
+type Phrase = {
+  text: string;
+  meaning: string;
+};
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') return res.status(405).end()
+type Result = {
+  original: string;
+  translation: string;
+  phrases: Phrase[];
+};
 
-  const { sentence } = req.body
-
-  try {
-    const gptPrompt = `
-You are an English-Korean grammar analyzer for high school students.
-Given the English sentence below, break it into meaningful phrase-level chunks (5 to 7 parts), and for each chunk, write a natural Korean translation.
-Also provide the full sentence Korean translation at the top.
-
-Sentence: "${sentence}"
-
-Return in JSON format like this:
-{
-  "original": "...",
-  "translation": "...",
-  "phrases": [
-    { "text": "...", "meaning": "..." },
-    ...
-  ]
-}
-`
-    const chat = await openai.chat.completions.create({
-      model: 'gpt-4',
-      messages: [{ role: 'user', content: gptPrompt }],
-      temperature: 0.5,
-    })
-
-    const jsonText = chat.choices[0].message.content?.trim()
-    const parsed = JSON.parse(jsonText || '{}')
-    res.status(200).json(parsed)
-  } catch (err) {
-    console.error('Error:', err)
-    res.status(500).json({ error: '문장 분석에 실패했습니다.' })
+export default function handler(req: NextApiRequest, res: NextApiResponse<Result>) {
+  if (req.method !== 'POST') {
+    res.status(405).end(); // Method Not Allowed
+    return;
   }
+
+  const { sentence } = req.body;
+
+  // 아주 간단한 더미 응답 - 원하는대로 바꿀 수 있음
+  const result: Result = {
+    original: sentence,
+    translation: '이것은 예시 번역입니다.',
+    phrases: [
+      { text: 'The Net differs', meaning: '인터넷은 다릅니다' },
+      { text: 'from most of the mass media', meaning: '대부분의 대중매체와' },
+    ],
+  };
+
+  res.status(200).json(result);
 }
