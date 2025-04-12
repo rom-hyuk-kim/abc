@@ -33,7 +33,7 @@ export default function Home() {
         {loading ? "분석 중..." : "분석하기"}
       </button>
 
-     {result?.phrases && Array.isArray(result.phrases) && (
+{result?.phrases && Array.isArray(result.phrases) && (
   <div className="mt-6 space-y-2 border-t pt-4">
     <h2 className="text-xl font-semibold">1. 원문</h2>
     <p>{result.original}</p>
