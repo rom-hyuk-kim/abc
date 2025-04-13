@@ -1,7 +1,7 @@
-    import type { NextApiRequest, NextApiResponse } from "next";
+import type { NextApiRequest, NextApiResponse } from "next";
 import OpenAI from "openai";
 
-// OpenAI 인스턴스 생성 (환경 변수에서 키 가져오기)
+// OpenAI 인스턴스 생성
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -20,28 +20,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ error: "Invalid sentence" });
   }
 
-  const splitPhrases = sentence
-    .split("/")
-    .map((phrase) => phrase.trim())
-    .filter(Boolean);
+  try {
+    const splitPhrases = sentence
+      .split("/")
+      .map((phrase) => phrase.trim())
+      .filter(Boolean);
 
-console.log("입력된 문장:", sentence);
-console.log("나눈 구문:", splitPhrases);
+    console.log("🧩 나눈 구문:", splitPhrases);
 
-const phraseAnalysis = await Promise.all(
-  splitPhrases.map(async (phrase) => {
-    ...
-  })
-);
-
-console.log("GPT 결과:", phraseAnalysis);
-
-          const completion = await openai.chat.completions.create({
+    const phraseAnalysis = await Promise.all(
+      splitPhrases.map(async (phrase) => {
+        const completion = await openai.chat.completions.create({
           model: "gpt-3.5-turbo",
           messages: [
             {
               role: "system",
-              content: "당신은 영어 문장을 한국어로 자연스럽게 번역해주는 번역 도우미입니다. 구문을 자연스럽고 간결하게 번역해주세요."
+              content:
+                "당신은 영어 문장을 한국어로 자연스럽게 번역해주는 번역 도우미입니다. 구문을 자연스럽고 간결하게 번역해주세요."
             },
             {
               role: "user",
@@ -56,17 +51,4 @@ console.log("GPT 결과:", phraseAnalysis);
       })
     );
 
-    const translation = phraseAnalysis.map((p) => p.meaning).join(" ");
-    console.log("📘 전체 해석:", translation);
-
-    return res.status(200).json({
-      original: sentence,
-      sliced: splitPhrases.join(" / "),
-      translation,
-      phrases: phraseAnalysis
-    });
-  } catch (error: any) {
-    console.error("❌ GPT 호출 중 에러:", error?.message || error);
-    return res.status(500).json({ error: "GPT 요청 실패", detail: error?.message || error });
-  }
-}
+    const translation = phraseAnalysis.map((p
