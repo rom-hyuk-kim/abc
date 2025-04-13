@@ -26,6 +26,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .map((phrase) => phrase.trim())
       .filter(Boolean);
 
+    console.log("📌 입력된 문장:", sentence);
     console.log("🧩 나눈 구문:", splitPhrases);
 
     const phraseAnalysis = await Promise.all(
@@ -51,4 +52,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       })
     );
 
-    const translation = phraseAnalysis.map((p
+    console.log("📋 GPT 결과:", phraseAnalysis);
+
+    const translation = phraseAnalysis.map((p) => p.meaning).join(" ");
+    console.log("📘 전체 해석:", translation);
+
+    return res.status(200).json({
+      original: sentence,
+      sliced: splitPhrases.join(" / "),
+      translation,
+      phrases: phraseAnalysis
+    });
+  } catch (error: any) {
+    console.error("❌ GPT 호출 중 에러:", error?.message || error);
+    return res.status(500).json({ error: "GPT 요청 실패", detail: error?.message || error });
+  }
+}
