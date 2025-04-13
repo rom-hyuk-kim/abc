@@ -25,14 +25,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     .map((phrase) => phrase.trim())
     .filter(Boolean);
 
-  console.log("🔍 나눈 구문:", splitPhrases);
+console.log("입력된 문장:", sentence);
+console.log("나눈 구문:", splitPhrases);
 
-  try {
-    const phraseAnalysis = await Promise.all(
-      splitPhrases.map(async (phrase) => {
-        console.log("🧠 GPT 요청 중:", phrase);
+const phraseAnalysis = await Promise.all(
+  splitPhrases.map(async (phrase) => {
+    ...
+  })
+);
 
-        const completion = await openai.chat.completions.create({
+console.log("GPT 결과:", phraseAnalysis);
+
+          const completion = await openai.chat.completions.create({
           model: "gpt-3.5-turbo",
           messages: [
             {
