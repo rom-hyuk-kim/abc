@@ -1,7 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import OpenAI from "openai";
 
-// OpenAI 인스턴스 생성
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -21,13 +20,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const splitPhrases = sentence
+    // GPT에게 문장을 자연스러운 구문 단위로 나눠달라고 요청
+    const slicing = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [
+        {
+          role: "system",
+          content: "당신은 영어 문장을 자연스러운 구문 단위로 / 슬래시로 구분해주는 도우미입니다."
+        },
+        {
+          role: "user",
+          content: `다음 문장을 구문 단위로 슬래시(/)를 넣어 구분해줘. 문장: ${sentence}`
+        }
+      ]
+    });
+
+    const slicedText = slicing.choices[0]?.message.content || sentence;
+    const splitPhrases = slicedText
       .split("/")
       .map((phrase) => phrase.trim())
       .filter(Boolean);
 
-    console.log("📌 입력된 문장:", sentence);
-    console.log("🧩 나눈 구문:", splitPhrases);
+    console.log("🔀 자동 분할된 구문:", splitPhrases);
 
     const phraseAnalysis = await Promise.all(
       splitPhrases.map(async (phrase) => {
@@ -51,8 +65,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return { text: phrase, meaning };
       })
     );
-
-    console.log("📋 GPT 결과:", phraseAnalysis);
 
     const translation = phraseAnalysis.map((p) => p.meaning).join(" ");
     console.log("📘 전체 해석:", translation);
